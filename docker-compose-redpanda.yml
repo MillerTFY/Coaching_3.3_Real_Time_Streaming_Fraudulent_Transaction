@@ -1,0 +1,22 @@
+services:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    command:
+      - redpanda
+      - start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --node-id 0
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      # Original hardcoded localhost:
+      # - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://${BROKER_HOST_IP:-localhost}:9092
+      - --pandaproxy-addr 0.0.0.0:8082
+      - --advertise-pandaproxy-addr ${BROKER_HOST_IP:-localhost}:8082
+    ports:
+      - "8081:8081"   # Schema Registry (Avro/Protobuf schema management)
+      - "8082:8082"   # HTTP Proxy (PandaProxy REST API)
+      - "9092:9092"   # External Kafka API (used by your Python scripts/external clients)
+      - "29092:29092" # Internal Kafka API (used by other Docker containers)

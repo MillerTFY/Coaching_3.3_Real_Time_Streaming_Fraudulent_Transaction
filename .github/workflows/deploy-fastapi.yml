@@ -1,0 +1,54 @@
+name: Deploy FastAPI to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - 'dashboard/**'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - '.github/workflows/deploy-fastapi.yml'
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: GCP_PROJECT_ID
+  REGION: us-central1
+  SERVICE_NAME: fraud-fastapi-dashboard
+  IMAGE_NAME: gcr.io/GCP_PROJECT_ID/fraud-fastapi
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: 'projects/YOUR-PROJECT-NUMBER/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'github-actions-sa-ftd@GCP_PROJECT_ID.iam.gserviceaccount.com'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Build and Push Docker Image
+        run: |
+          gcloud builds submit --tag ${{ env.IMAGE_NAME }} .
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.IMAGE_NAME }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080

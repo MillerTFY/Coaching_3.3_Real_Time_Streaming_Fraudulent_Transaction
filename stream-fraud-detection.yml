@@ -1,0 +1,21 @@
+name: stream-fraud-detection
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas
+  - numpy
+  - scikit-learn
+  - pip
+  - pip:
+    - xgboost
+    - joblib
+    - kafka-python
+    - google-cloud-pubsub
+    - streamlit
+    - plotly
+    - fastapi
+    - uvicorn
+    - websockets
+    - python-dotenv

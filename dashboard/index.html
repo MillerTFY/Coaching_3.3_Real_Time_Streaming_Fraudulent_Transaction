@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection Dashboard</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=3">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--accent-red);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <h2><i class="fa-solid fa-building-columns"></i> Lakeside Bank HQ</h2>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active" id="menuAlerts" style="cursor: pointer;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Fraud Alerts</span>
+                </div>
+                <div class="menu-item" id="menuAnalytics" style="cursor: pointer;">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="menu-item" id="settingsMenuBtn" style="cursor: pointer;">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Auto-Mode Settings</span>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot green"></div>
+                <span>Connected to Broker</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-titles">
+                    <h1>Fraud Detection Dashboard</h1>
+                    <p>Internal interface to monitor and resolve flagged transactions in real-time.</p>
+                </div>
+                <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="queue-counter glass-panel">
+                        <span style="color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.75rem;">Auto-Mode</span>
+                        <label class="switch" style="margin: 0; transform: scale(0.85); transform-origin: center right;">
+                            <input type="checkbox" id="autoModeToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="queue-counter glass-panel">
+                        <i class="fa-solid fa-user-tie" style="color: var(--text-secondary);"></i>
+                        <div style="display: flex; align-items: center;">
+                            <input type="text" id="bankName" placeholder="Staff Name" style="border: none; background: transparent; color: white; outline: none; font-weight: 600; width: 70px; font-family: inherit; font-size: 0.875rem;">
+                            <span id="sessionSuffixDisplay" style="color: #a0aec0; font-weight: 600; font-size: 0.875rem; user-select: none;"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="queue-counter glass-panel">
+                        <i class="fa-regular fa-bell" style="color: var(--text-secondary);"></i>
+                        <span><span id="queueCount">0</span> Alerts</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="alerts-container" id="alertsContainer">
+                <!-- Alerts will be injected here dynamically -->
+                <div class="empty-state" id="emptyState">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                    <h2>Listening for Fraud Alerts</h2>
+                    <p>Start the POS terminal to generate transactions...</p>
+                </div>
+            </div>
+            
+            <div class="analytics-container" id="analyticsContainer" style="display: none; padding: 2rem;">
+                <h2 style="margin-bottom: 2rem;">System & Operational Latency</h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                    <div class="glass-panel" style="padding: 2rem; border-radius: 12px; text-align: center;">
+                        <h3 style="color: #a0aec0; font-size: 1rem; margin-bottom: 1rem;">Average System Latency</h3>
+                        <div id="metricSysLatency" style="font-size: 2.5rem; font-weight: 800; color: white;">0 ms</div>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Event &rarr; Broker &rarr; ML Inference &rarr; UI Rendering</p>
+                    </div>
+                    <div class="glass-panel" style="padding: 2rem; border-radius: 12px; text-align: center;">
+                        <h3 style="color: #a0aec0; font-size: 1rem; margin-bottom: 1rem;">Average Analyst Response</h3>
+                        <div id="metricOpLatency" style="font-size: 2.5rem; font-weight: 800; color: white;">0.0 s</div>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem;">Alert Rendered &rarr; Human Action (Whitelist/Freeze)</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div class="glass-panel" style="padding: 2.5rem; width: 450px; border-radius: 12px; position: relative;">
+            <i class="fa-solid fa-xmark" id="closeSettings" style="position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer; font-size: 1.5rem; color: #a0aec0; transition: color 0.3s;"></i>
+            <h2 style="margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;"><i class="fa-solid fa-sliders"></i> Auto-Mode Settings</h2>
+            
+            <div style="margin-top: 2rem;">
+                <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span style="font-weight: 600; font-size: 1.1rem;">Auto-Mode Freeze Threshold</span>
+                    <span id="thresholdDisplay" style="font-size: 1.2rem; font-weight: 800; color: var(--accent-red);">70%</span>
+                </label>
+                <input type="range" id="thresholdSlider" min="50" max="99" value="70" style="width: 100%; height: 6px; border-radius: 3px; outline: none; appearance: none; background: rgba(255,255,255,0.2);">
+                <p style="font-size: 0.85rem; color: #a0aec0; margin-top: 1rem; line-height: 1.4;">
+                    If the Machine Learning Confidence is <strong style="color: white;">greater than or equal to</strong> this percentage, Auto-Mode will issue a <strong>Freeze</strong> command. Otherwise, it will issue a <strong>Whitelist</strong> command.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Version Info -->
+    <div id="versionInfo" class="version-info" style="position: fixed; bottom: 10px; left: 15px; font-size: 0.75rem; color: #64748b; font-weight: 600; z-index: 50;">
+        FastAPI v-- | Updated: --
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="/static/app.js?v=3"></script>
+</body>
+</html>

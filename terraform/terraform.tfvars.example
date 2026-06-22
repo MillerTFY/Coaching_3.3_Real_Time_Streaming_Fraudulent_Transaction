@@ -1,0 +1,5 @@
+# Replace with your actual Google Cloud Project ID
+project_id = "GCP_PROJECT_ID"
+
+# The region where you want to deploy the serverless functions
+region = "us-central1"
