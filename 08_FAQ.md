@@ -60,6 +60,19 @@ Cloud Run containers scale down to zero when idle. If we used a Pull subscriptio
 **14. What does message "acknowledgment" (ack) mean?**
 When a consumer receives a message, it must send an "ack" back to the broker to say "I successfully processed this." If it doesn't ack within a deadline, the broker assumes the consumer crashed and redelivers the message.
 
+**14b. Is Pub/Sub an Immutable Log (like Kafka) or a Message Queue (like RabbitMQ)?**
+It is a hybrid that utilizes both concepts:
+* **At the TOPIC Level (Acts like Kafka):** When your POS Terminal publishes a transaction to the `fraud-transactions` Topic, that message is immutable. If you have 3 different Subscriptions attached to that one Topic (e.g., `ML-Fraud-Sub`, `Accounting-Sub`, `Marketing-Sub`), Pub/Sub duplicates the reference to that message 3 times. All three independent systems can read the exact same transaction simultaneously without deleting it.
+* **At the SUBSCRIPTION Level (Acts like RabbitMQ):** When your ML model reads a message from the `ML-Fraud-Sub` and ACKs it, the message is deleted from that specific subscription only. However, the Accounting and Marketing systems can still read it from their subscriptions.
+
+📝 **Note:** By default, once all subscriptions ACK a message, Pub/Sub deletes it entirely to save storage costs. However, you can enable "Message Retention" to keep the messages on disk for days and replay them, giving it true event-streaming capabilities!
+
+**14c. Are there other open-source alternatives like RabbitMQ or MQTT?**
+It's important to understand the difference between **Event Streaming Platforms** (like Kafka and GCP Pub/Sub) and **Traditional Message Queues** (like RabbitMQ and MQTT):
+* **Event Streaming (Kafka, Redpanda, Apache Pulsar):** These are designed for massive throughput and *store* events in an immutable log. Multiple different systems (fraud detection, rewards program, accounting) can all read the exact same credit card swipe simultaneously, or even replay history. Pulsar, in particular, is a great hybrid that does both streaming and queuing.
+* **Traditional Message Queue (RabbitMQ):** Designed for "task routing." Once a consumer successfully reads and acks a message, it is typically deleted. It is fantastic for task delegation (e.g., "send this welcome email"), but less ideal for the massive, persistent data pipelines needed in our fraud detection lab.
+* **IoT Queues (MQTT brokers like Mosquitto):** MQTT is an ultra-lightweight protocol designed for Internet of Things (IoT) devices with terrible internet connections (like smart thermostats or remote sensors). While a POS terminal *could* use MQTT to send a signal, you wouldn't use it as the core data backbone feeding a heavy ML model at Bank HQ.
+
 ### ⚡ 9.3 Fast Data & Fraud Machine Learning
 
 **15. Why does the ML model use a Random Forest instead of a Deep Neural Network?**
