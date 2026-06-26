@@ -47,6 +47,10 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+#By tfy
+echo "terraform/terraform.exe" >> .gitignore
+echo "*.exe" >> .gitignore
+
 
 # IDE
 .vscode/
