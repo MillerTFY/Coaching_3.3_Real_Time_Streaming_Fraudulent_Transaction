@@ -165,7 +165,7 @@ Ensure Docker Desktop is running in Windows/WSL environment.
 Additional check for WSL users: Make sure the **Enabled integration with my default WSL distro** setting in Settings/Resources/WSL Integration page is checked and the Ubuntu distribution is enabled.
 
 ![alt text](images/docker-compose-up-kafka.png)
-Run `docker-compose` to start the Kafka broker.
+Run `docker-compose up` to start the Kafka broker.
 
 ---
 
